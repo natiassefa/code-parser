@@ -3,7 +3,7 @@ import path from "path";
 import { walkCodebase } from "./fileWalker";
 import { ParserEngine } from "./parserEngine";
 
-async function main() {
+export async function main() {
   const rootDir = process.argv[2] || ".";
   const outputDir = path.join(rootDir, ".parsed-output");
   fs.mkdirSync(outputDir, { recursive: true });
@@ -28,4 +28,7 @@ async function main() {
   console.log(`\n📁 Output saved to: ${outputDir}`);
 }
 
-main();
+// Only run main if this file is executed directly
+if (require.main === module) {
+  main();
+}

@@ -148,10 +148,28 @@ If you encounter TypeScript compilation errors:
 
 ### Testing
 
-Run the test suite:
+Run all tests:
 
 ```bash
 npm test
+```
+
+Run unit tests only:
+
+```bash
+npm run test:unit
+```
+
+Run integration tests only:
+
+```bash
+npm run test:integration
+```
+
+Run full test suite (unit tests first, then integration):
+
+```bash
+npm run test:full
 ```
 
 Run tests in watch mode:
@@ -166,6 +184,8 @@ Run tests with coverage:
 npm run test:coverage
 ```
 
+**Note:** Integration tests are run separately from unit tests to avoid interference with tree-sitter native modules.
+
 ### Project Structure
 
 ```
@@ -175,9 +195,10 @@ src/
 └── fileWalker.ts     # File system traversal
 
 tests/
-├── setup.ts          # Test configuration
-├── parserEngine.test.ts  # Comprehensive parser tests
-└── fileWalker.test.ts    # File system traversal tests
+├── setup.ts                    # Test configuration
+├── parserEngine.test.ts        # Comprehensive parser tests
+├── fileWalker.test.ts          # File system traversal tests
+└── index.integration.test.ts   # End-to-end workflow tests
 ```
 
 ### Adding New Languages

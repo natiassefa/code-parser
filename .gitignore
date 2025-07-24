@@ -62,3 +62,4 @@ jspm_packages/
 
 # Chroma
 .chroma_db/
+.early.coverage

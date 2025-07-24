@@ -13,9 +13,6 @@ try:
     count = collection.count()
     print(f"📊 Total embeddings stored: {count}")
     
-    if count > 0:
-        # test query
-        print(collection.query(query_texts=['what is the purpose of the codebase'], n_results=5))
         
 except Exception as e:
     print(f"❌ No collection found or error: {e}")

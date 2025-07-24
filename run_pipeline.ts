@@ -34,8 +34,8 @@ function runPythonEmbedding() {
   });
 }
 
-function runQuery() {
-  console.log("🔍 Running query...");
+function verifyEmbeddings() {
+  console.log("🔍 Verifying embeddings...");
   execSync("python3 code-parser-python/check_embeddings.py", {
     stdio: "inherit",
   });
@@ -48,13 +48,13 @@ if (require.main === module) {
   } else if (step === "embed") {
     runPythonEmbedding();
     console.log("✅ Embedding done!");
-  } else if (step === "query") {
-    runQuery();
+  } else if (step === "verify") {
+    verifyEmbeddings();
     console.log("✅ Query done!");
   } else if (step === "all") {
     runNodeParser(codebase);
     runPythonEmbedding();
-    runQuery();
+    verifyEmbeddings();
     console.log("✅ Done!");
   } else {
     console.error(`Unknown step: ${step}`);

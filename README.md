@@ -1,11 +1,19 @@
 # Code Parser
 
-A powerful code parsing tool that uses Tree-sitter to parse multiple programming languages and extract their Abstract Syntax Trees (ASTs).
+A powerful code parsing tool that uses Tree-sitter to parse multiple programming languages, extract their Abstract Syntax Trees (ASTs), and intelligently chunk code into semantically meaningful units for enhanced code analysis and RAG (Retrieval-Augmented Generation) applications.
+
+## Features
+
+- **Multi-language Support**: Parse and chunk code from 10+ programming languages
+- **Intelligent AST Chunking**: Break down large codebases into meaningful, searchable chunks
+- **Enhanced Context Formatting**: Optimized output for LLM-based code analysis
+- **RAG Integration**: Ready-to-use embeddings and vector search capabilities
+- **Comprehensive Testing**: Full test suite with unit and integration tests
 
 ## Supported Languages
 
 - Go (`.go`)
-- Python (`.py`)
+- Python (`.py`) - **Enhanced with 25+ granular chunk types**
 - Rust (`.rs`)
 - TypeScript (`.ts`, `.tsx`)
 - JavaScript (`.js`, `.jsx`)
@@ -15,13 +23,14 @@ A powerful code parsing tool that uses Tree-sitter to parse multiple programming
 - Swift (`.swift`)
 - Haskell (`.hs`)
 
-**Note:** Zig (`.zig`) support is currently limited due to issues with the `tree-sitter-zig` package. The parser will throw an error when attempting to parse Zig files.
+**Note:** Zig (`.zig`) support is currently limited due to issues with the `tree-sitter-zig` package.
 
 ## Prerequisites
 
 - Node.js 18.0.0 or higher
 - npm or yarn
 - C++ compiler with C++20 support (for native module compilation)
+- Python 3.8+ (for RAG features)
 
 ### C++ Compiler Setup
 
@@ -56,10 +65,10 @@ git clone https://github.com/natiassefa/code-parser.git
 cd code-parser
 ```
 
-2. Install dependencies:
+2. Install Node.js dependencies:
 
 ```bash
-npm install
+npm install --legacy-peer-deps
 ```
 
 **Note:** If you encounter C++ compilation errors, try:
@@ -68,7 +77,15 @@ npm install
 CXXFLAGS="-std=c++20" npm install --legacy-peer-deps
 ```
 
-3. Build the project:
+3. Install Python dependencies (for RAG features):
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+```
+
+4. Build the project:
 
 ```bash
 npm run build
@@ -78,71 +95,77 @@ npm run build
 
 ### Basic Usage
 
-Parse the current directory:
+Parse and chunk the current directory:
 
 ```bash
 npm start
 ```
 
-Parse a specific directory:
+Parse and chunk a specific directory:
 
 ```bash
 npm start /path/to/your/codebase
 ```
 
-### Development
+### Output Structure
 
-For development with automatic rebuild:
+The parser generates two types of output:
 
-```bash
-npm run dev
-```
+1. **AST Output** (`.parsed-output/`): Raw Abstract Syntax Trees
+2. **Chunks Output** (`.chunks-output/`): Structured code chunks optimized for analysis
 
-### Output
+### Chunk Format
 
-The parser will:
-
-1. Scan the specified directory for supported file types
-2. Parse each file using the appropriate Tree-sitter grammar
-3. Generate JSON files containing the AST in the `.parsed-output` directory
-4. Each output file is named after the source file with `.json` extension
-
-### Example Output
+Each chunk contains:
 
 ```json
 {
-  "filePath": "/path/to/file.go",
-  "language": "go",
-  "ast": "(source_file (package_clause (package_identifier)) (function_declaration name: (identifier) parameters: (parameter_list) body: (block)))"
+  "filePath": "/path/to/file.py",
+  "kind": "function_definition",
+  "name": "calculate_total",
+  "code": "def calculate_total(items):\n    return sum(items)",
+  "range": {
+    "start": { "line": 10 },
+    "end": { "line": 12 }
+  }
 }
 ```
 
-## Configuration
+### Enhanced Python Chunking
 
-The parser automatically:
+Python files are parsed with exceptional granularity, extracting:
 
-- Ignores common directories (`node_modules/`, `.git/`, `dist/`, etc.)
-- Respects `.gitignore` files
-- Skips unsupported file types
+- **Functions & Classes**: `function_definition`, `class_definition`, `async_function_definition`
+- **Imports**: `import_statement`, `import_from_statement`
+- **Data Structures**: `list`, `dictionary`, `set`, `tuple`
+- **Control Flow**: `if_statement`, `for_statement`, `while_statement`, `try_statement`
+- **Assignments**: `assignment`, `augmented_assignment`, `ann_assign`
+- **Type System**: `type_alias`, `type_annotation`
+- **Expressions**: `lambda`, `decorator`, `expression_statement`
+- **Statements**: `assert_statement`, `raise_statement`, `return_statement`, `yield_statement`
 
-## Troubleshooting
+## RAG Integration
 
-### C++ Compilation Errors
+### Embedding Code Chunks
 
-If you see errors like `"C++20 or later required"`:
+```bash
+cd code-parser-python
+python embed_chunks.py
+```
 
-1. Ensure you have a C++20 compatible compiler
-2. Try installing with explicit C++20 flags:
-   ```bash
-   CXXFLAGS="-std=c++20" npm install --legacy-peer-deps
-   ```
+This creates embeddings in ChromaDB for semantic search.
 
-### TypeScript Errors
+### Querying with RAG
 
-If you encounter TypeScript compilation errors:
+```bash
+python qa.py "What does the calculate_total function do?"
+```
 
-1. Ensure TypeScript is installed: `npm install typescript`
-2. Rebuild: `npm run build`
+Supports multiple LLM backends:
+
+- OpenAI GPT-4
+- Anthropic Claude
+- Ollama (local)
 
 ## Development
 
@@ -190,18 +213,85 @@ npm run test:coverage
 
 ```
 src/
-├── index.ts          # Main entry point
-├── parserEngine.ts   # Tree-sitter parser engine
+├── index.ts          # Main entry point and CLI
+├── parserEngine.ts   # Tree-sitter parser and chunking engine
 └── fileWalker.ts     # File system traversal
 
 tests/
 ├── setup.ts                    # Test configuration
 ├── parserEngine.test.ts        # Comprehensive parser tests
 ├── fileWalker.test.ts          # File system traversal tests
+├── astChunker.test.ts          # AST chunking tests
 └── index.integration.test.ts   # End-to-end workflow tests
+
+code-parser-python/
+├── embed_chunks.py             # ChromaDB embedding script
+└── qa.py                      # RAG query interface
+
+code-parser-node/
+├── package.json               # Node.js parser configuration
+└── tsconfig.json             # TypeScript configuration
 ```
 
-### Adding New Languages
+### Enhanced Context Formatting
+
+The RAG system provides intelligently formatted context:
+
+```
+[1] PYTHON function: calculate_total in /path/to/file.py (lines 10-12)
+---
+def calculate_total(items):
+    return sum(items)
+
+[2] PYTHON import in /path/to/file.py (lines 1-1)
+---
+import json
+```
+
+This format helps LLMs understand:
+
+- Programming language context
+- Code construct types and names
+- File organization and line locations
+- Relationships between code elements
+
+## Configuration
+
+The parser automatically:
+
+- Ignores common directories (`node_modules/`, `.git/`, `dist/`, etc.)
+- Respects `.gitignore` files
+- Skips unsupported file types
+- Creates separate output directories for ASTs and chunks
+
+## Troubleshooting
+
+### C++ Compilation Errors
+
+If you see errors like `"C++20 or later required"`:
+
+1. Ensure you have a C++20 compatible compiler
+2. Try installing with explicit C++20 flags:
+   ```bash
+   CXXFLAGS="-std=c++20" npm install --legacy-peer-deps
+   ```
+
+### TypeScript Errors
+
+If you encounter TypeScript compilation errors:
+
+1. Ensure TypeScript is installed: `npm install typescript`
+2. Rebuild: `npm run build`
+
+### ChromaDB Issues
+
+If ChromaDB operations fail:
+
+1. Ensure the `.chroma_db` directory exists
+2. Check that metadata values are strings (not objects)
+3. Verify Python dependencies are installed
+
+## Adding New Languages
 
 To add support for a new language:
 
@@ -219,6 +309,8 @@ To add support for a new language:
    // In the languageMap:
    '.ext': { langId: 'language', parser: NewLanguage as Parser.Language },
    ```
+
+3. Define chunk types for the language in the `CHUNK_TYPES` mapping
 
 ## License
 

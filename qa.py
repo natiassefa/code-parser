@@ -138,7 +138,6 @@ def ask(
     # distances = res["distances"][0]  # if you want to show scores
 
     context = format_context(documents, metadatas)
-    print(context)
     user_prompt = USER_PROMPT_TEMPLATE.format(question=question, k=top_k, context=context)
 
     if backend == "openai":

@@ -1,0 +1,12 @@
+chromadb
+sentence-transformers
+argparse
+
+# dotenv
+dotenv
+
+# anthropic
+anthropic
+
+# openai
+openai

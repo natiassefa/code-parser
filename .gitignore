@@ -58,3 +58,7 @@ jspm_packages/
 
 # Parsed output
 .parsed-output/ 
+.chunks-output/
+
+# Chroma
+.chroma_db/

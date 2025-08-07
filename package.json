@@ -12,6 +12,7 @@
   },
   "license": "MIT",
   "author": "nate assefa",
+  "keywords": ["parser", "ast", "tree-sitter", "code-analysis", "syntax-tree"],
   "type": "commonjs",
   "main": "run_pipeline.ts",
   "scripts": {

@@ -1,6 +1,6 @@
 {
   "name": "code-parser",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "A powerful code parsing tool that uses Tree-sitter to parse multiple programming languages and extract their Abstract Syntax Trees (ASTs).",
   "homepage": "https://github.com/natiassefa/code-parser#readme",
   "bugs": {
